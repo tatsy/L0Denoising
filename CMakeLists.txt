@@ -2,19 +2,31 @@ cmake_minimum_required(VERSION 2.8.0)
 project(Denoising)
 
 find_package(OpenCV REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(Eigen3 REQUIRED)
+
+#
+## Find Eigen
+#
+if (WIN32)
+  set(Eigen_ROOT "Eigen_NOT-FOUND" CACHE PATH "")
+  if (NOT EXISTS "${Eigen_ROOT}/Eigen/Core")
+  else()
+    set(EIGEN3_INCLUDE_DIR "${Eigen_ROOT}")
+  endif()
+else()
+  find_package(Eigen3 REQUIRED)
+endif()
 
 #
 ## Find freeglut
 #
 if (WIN32)
-  set(freeglut_ROOT "freeglut_ROOT" CACHE PATH "freeglut-NOT_FOUND")
+  set(freeglut_ROOT "freeglut_NOT-FOUND" CACHE PATH "")
   if (NOT EXISTS "${freeglut_ROOT}/include/GL/freeglut.h")
     message(FATAL_ERROR "[ERROR] freeglut path seems to be wrong!!")
   else()
     set(freeglut_INCLUDE_DIR "${freeglut_ROOT}/include")
-    set(freeglut_LIBRARIES "${freeglut_ROOT}/lib/x64/freeglut.lib")
+    set(freeglut_LIBRARIES "$<$<CONFIG:Release>:${freeglut_ROOT}/lib/freeglut.lib>"
+                           "$<$<CONFIG:Debug>:${freeglut_ROOT}/lib/freeglutd.lib>")
   endif()
 else()
   find_package(FreeGLUT REQUIRED)
@@ -24,7 +36,7 @@ endif()
 ## Find OpenMesh
 #
 if (WIN32)
- set(OpenMesh_ROOT "OpenMesh_ROOT" CACHE PATH "OpenMesh-NOT_FOUND")
+ set(OpenMesh_ROOT "OpenMesh_NOT-FOUND" CACHE PATH "")
  if (NOT EXISTS "${OpenMesh_ROOT}/include/OpenMesh/Core")
    message(FATAL_ERROR "[ERROR] OpenMesh path seems to be wrong!!")
  else()
